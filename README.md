@@ -38,5 +38,4 @@ CrisisLink fixes this.
 
 # Built by
 Saee Kolhe — B.Tech AIML, Pune
-
 Vaidehi Singh - B.Tech AIML, Pune
