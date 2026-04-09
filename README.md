@@ -31,8 +31,10 @@ CrisisLink fixes this.
 4. Right click index.html → Open with Live Server
 
 # Live Demo
-CrisisLink.html
-Backend.py
+index.html
+
+main.py
+
 requirement.txt
 
 ## Demo Video
