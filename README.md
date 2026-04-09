@@ -33,7 +33,7 @@ CrisisLink fixes this.
 # Live Demo
 https://github.com/Saee6/CrisisLink-2026/blob/main/index.html
 
-main.py
+https://github.com/Saee6/CrisisLink-2026/blob/main/main.py
 
 requirement.txt
 
