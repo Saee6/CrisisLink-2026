@@ -1,8 +1,4 @@
-# CrisisLink-2026
-Real-time hotel emergency response system.
-
-
-# CrisisLink — Hotel Emergency Response System
+# CrisisLink — Real Time Hotel Emergency Response System
 Track: Rapid Crisis Response
 
 # The Problem
