@@ -31,7 +31,8 @@ CrisisLink fixes this.
 4. Right click index.html → Open with Live Server
 
 # Live Demo
-[paste your GitHub Pages link here]
+CrisisLink.html
+
 
 ## Demo Video
 [paste your Loom link here]
