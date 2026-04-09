@@ -35,7 +35,7 @@ https://github.com/Saee6/CrisisLink-2026/blob/main/index.html
 
 https://github.com/Saee6/CrisisLink-2026/blob/main/main.py
 
-requirement.txt
+https://github.com/Saee6/CrisisLink-2026/blob/main/requirement.txt
 
 ## Demo Video
 [paste your Loom link here]
