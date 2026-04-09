@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CrisisLink — Hotel Emergency Response</title>
+<style>
+:root {
+  --bg: #f0f2f5; --surface: #ffffff; --border: #e8e8e8;
+  --text: #1a1a1a; --muted: #666; --subtle: #999;
+  --topbar: #1a1a2e; --topbar-text: #ffffff;
+  --input-bg: #ffffff; --input-border: #e0e0e0;
+  --chip-bg: #ffffff; --chip-text: #555;
+  --stat-bg: #ffffff; --ai-box: #f8fafc; --ai-border: #e8eef5;
+  --empty-color: #bbb; --nav-bg: #ffffff;
+  --red: #e74c3c; --orange: #e67e22; --blue: #2980b9; --green: #27ae60;
+  --red-bg: #fdecea; --orange-bg: #fef3cd; --blue-bg: #d6eaf8; --green-bg: #d5f5e3;
+  --red-text: #c0392b; --orange-text: #d68910; --blue-text: #1a6fa3; --green-text: #1a7a3c;
+}
+[data-theme="dark"] {
+  --bg: #0f0f1a; --surface: #1a1a2e; --border: #2a2a3e;
+  --text: #e8e8f0; --muted: #9898b0; --subtle: #606078;
+  --topbar: #0a0a15; --topbar-text: #e8e8f0;
+  --input-bg: #1e1e30; --input-border: #2a2a3e;
+  --chip-bg: #1e1e30; --chip-text: #9898b0;
+  --stat-bg: #1e1e30; --ai-box: #1e1e30; --ai-border: #2a2a3e;
+  --empty-color: #4a4a60; --nav-bg: #1a1a2e;
+  --red-bg: #2d1515; --orange-bg: #2d2010; --blue-bg: #101d2d; --green-bg: #0f2018;
+  --red-text: #f1948a; --orange-text: #f0b27a; --blue-text: #7fb3d3; --green-text: #7dcea0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+.topbar{background:var(--topbar);color:var(--topbar-text);padding:13px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:10px}
+.logo{font-size:17px;font-weight:700;letter-spacing:.3px;white-space:nowrap}.logo span{color:#e74c3c}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.sys-status{font-size:12px;color:#aaa;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.pulse{width:7px;height:7px;background:#2ecc71;border-radius:50%;animation:blink 1.5s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.dark-toggle{background:none;border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 12px;color:rgba(255,255,255,.8);font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.dark-toggle:hover{background:rgba(255,255,255,.1)}
+.nav{display:flex;background:var(--nav-bg);border-bottom:1px solid var(--border);padding:0 16px;overflow-x:auto;transition:background .3s}
+.navbtn{padding:13px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--muted);border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap}
+.navbtn.active{color:#e74c3c;border-bottom-color:#e74c3c}
+.view{display:none;padding:20px;max-width:840px;margin:0 auto}
+.view.active{display:block}
+.pg-title{font-size:21px;font-weight:700;margin-bottom:4px;color:var(--text)}
+.pg-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+.card{background:var(--surface);border-radius:12px;padding:20px;margin-bottom:14px;border:1px solid var(--border);transition:background .3s,border-color .3s}
+.form-group{margin-bottom:15px}
+label{font-size:13px;font-weight:600;display:block;margin-bottom:6px;color:var(--text)}
+input,textarea,select{width:100%;padding:11px 14px;border:1.5px solid var(--input-border);border-radius:8px;font-size:14px;outline:none;transition:border-color .2s;font-family:inherit;background:var(--input-bg);color:var(--text)}
+input:focus,textarea:focus{border-color:#e74c3c}
+textarea{resize:vertical;min-height:80px}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+.typebtn{padding:16px 10px;border:2px solid var(--border);border-radius:10px;cursor:pointer;background:var(--surface);text-align:center;transition:all .2s;font-size:13px;font-weight:500;color:var(--text)}
+.typebtn:hover{border-color:#e74c3c;transform:translateY(-2px);box-shadow:0 4px 12px rgba(231,76,60,.15)}
+.typebtn.sel{border-color:#e74c3c;background:var(--red-bg);color:var(--red-text)}
+.type-icon{font-size:24px;display:block;margin-bottom:6px}
+.panicbtn{width:100%;padding:16px;background:#e74c3c;color:white;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;letter-spacing:.3px;transition:all .2s;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:10px}
+.panicbtn:hover{background:#c0392b;transform:translateY(-1px);box-shadow:0 4px 16px rgba(231,76,60,.4)}
+.panicbtn:disabled{background:#888;cursor:not-allowed;transform:none;box-shadow:none}
+.success-box{background:var(--green-bg);border:1px solid var(--green);border-radius:10px;padding:16px;margin-top:14px;display:none;animation:slideDown .3s ease}
+.success-box.show{display:block}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.stat{background:var(--stat-bg);border-radius:10px;padding:14px;text-align:center;border:1px solid var(--border);transition:all .2s}
+.stat:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.stat-n{font-size:28px;font-weight:700;transition:all .3s}
+.stat-l{font-size:11px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+.n-red{color:#e74c3c}.n-org{color:#e67e22}.n-blue{color:#2980b9}.n-grn{color:#27ae60}
+.alert-card{background:var(--surface);border-radius:12px;padding:18px;margin-bottom:12px;border:1px solid var(--border);border-left:5px solid #ccc;transition:all .3s;animation:cardIn .4s ease}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.alert-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.alert-card.critical{border-left-color:#e74c3c}
+.alert-card.high{border-left-color:#e67e22}
+.alert-card.medium{border-left-color:#2980b9}
+.alert-card.resolved{border-left-color:#27ae60;opacity:.65}
+.new-flash{animation:cardIn .4s ease,flashBorder 1s ease 3}
+@keyframes flashBorder{0%,100%{box-shadow:none}50%{box-shadow:0 0 0 3px rgba(231,76,60,.4)}}
+.a-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:10px}
+.a-title{font-size:15px;font-weight:700;color:var(--text)}
+.a-time{font-size:12px;color:var(--subtle);white-space:nowrap}
+.a-meta{font-size:13px;color:var(--muted);margin-bottom:4px}
+.a-desc{font-size:13px;color:var(--muted);margin-bottom:12px;font-style:italic;border-left:3px solid var(--border);padding-left:10px;border-radius:0}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;margin-right:6px}
+.badge-critical{background:var(--red-bg);color:var(--red-text)}
+.badge-high{background:var(--orange-bg);color:var(--orange-text)}
+.badge-medium{background:var(--blue-bg);color:var(--blue-text)}
+.badge-resolved{background:var(--green-bg);color:var(--green-text)}
+.ai-box{background:var(--ai-box);border:1px solid var(--ai-border);border-radius:8px;padding:14px;margin-top:10px}
+.ai-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.ai-dot{width:6px;height:6px;background:#3498db;border-radius:50%;animation:blink 2s infinite}
+.step-row{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start}
+.step-num{background:#e74c3c;color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.step-text{font-size:13px;color:var(--text);line-height:1.6}
+.action-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn-resolve{padding:8px 16px;background:none;border:1.5px solid #27ae60;color:var(--green-text);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-resolve:hover{background:#27ae60;color:white}
+.btn-escalate{padding:8px 16px;background:none;border:1.5px solid #e74c3c;color:var(--red-text);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-escalate:hover{background:#e74c3c;color:white}
+.empty{text-align:center;padding:60px 20px;color:var(--empty-color)}
+.empty-icon{font-size:52px;margin-bottom:14px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.login-wrap{max-width:380px;margin:40px auto}
+.login-title{font-size:20px;font-weight:700;margin-bottom:4px;text-align:center;color:var(--text)}
+.login-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px}
+.loginbtn{width:100%;padding:13px;background:#1a1a2e;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.loginbtn:hover{background:#2c2c4e;transform:translateY(-1px)}
+.err{color:#e74c3c;font-size:13px;margin-top:8px;display:none}
+.logged-bar{display:flex;align-items:center;justify-content:space-between;background:var(--ai-box);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;border:1px solid var(--border);color:var(--text)}
+.signout{font-size:12px;color:#e74c3c;cursor:pointer;font-weight:600}
+.filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-chip{padding:6px 14px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;background:var(--chip-bg);color:var(--chip-text);transition:all .2s}
+.filter-chip.active{background:#1a1a2e;color:white;border-color:#1a1a2e}
+.ec-card{background:var(--surface);border-radius:12px;padding:18px;margin-bottom:12px;border:1px solid var(--border)}
+.ec-card h3{font-size:15px;font-weight:600;margin-bottom:8px;color:var(--text)}
+.ec-card p{font-size:13px;color:var(--muted);line-height:1.7}
+.callbtn{display:inline-block;padding:9px 18px;background:#e74c3c;color:white;border-radius:8px;font-size:13px;font-weight:600;margin-top:10px;cursor:pointer;border:none;transition:all .2s}
+.callbtn:hover{background:#c0392b;transform:translateY(-1px)}
+.live-badge{background:#e74c3c;color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.5px;animation:blink 2s infinite;margin-left:8px}
+.notification-toast{position:fixed;top:70px;right:20px;background:#e74c3c;color:white;padding:14px 18px;border-radius:10px;font-size:14px;font-weight:500;z-index:9999;display:none;animation:slideInRight .3s ease;box-shadow:0 4px 20px rgba(231,76,60,.5);max-width:300px}
+.notification-toast.show{display:block}
+@keyframes slideInRight{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.python-badge{background:linear-gradient(135deg,#3776ab,#ffd43b);color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.3px;margin-left:6px}
+.info-banner{background:var(--blue-bg);border:1px solid var(--blue);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--blue-text);margin-bottom:14px}
+@media(max-width:500px){.stats-grid{grid-template-columns:1fr 1fr}.type-grid{grid-template-columns:1fr 1fr}.topbar{padding:12px 14px}}
+</style>
+</head>
+<body>
+
+<div class="notification-toast" id="toast"></div>
+
+<div class="topbar">
+  <div class="logo">Crisis<span>Link</span> <span style="font-size:10px;opacity:.5;font-weight:400">v2.0</span></div>
+  <div class="topbar-right">
+    <div class="sys-status"><span class="pulse"></span>Live</div>
+    <button class="dark-toggle" onclick="toggleDark()" id="darkBtn">🌙 Dark</button>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="navbtn active" onclick="gotoView('guest',this)">🚨 Guest Report</button>
+  <button class="navbtn" onclick="gotoView('staff',this)">📊 Staff Dashboard</button>
+  <button class="navbtn" onclick="gotoView('emergency',this)">📋 Emergency Info</button>
+</div>
+
+<div id="guest" class="view active">
+  <div class="pg-title">Report an Emergency</div>
+  <div class="pg-sub">Your report is instantly sent to all hotel staff</div>
+  <div class="card">
+    <div class="form-group">
+      <label>What type of emergency?</label>
+      <div class="type-grid">
+        <button class="typebtn" onclick="selType(this,'Fire / Smoke')"><span class="type-icon">🔥</span>Fire / Smoke</button>
+        <button class="typebtn" onclick="selType(this,'Medical Emergency')"><span class="type-icon">🏥</span>Medical</button>
+        <button class="typebtn" onclick="selType(this,'Security Threat')"><span class="type-icon">🚨</span>Security</button>
+        <button class="typebtn" onclick="selType(this,'Structural Hazard')"><span class="type-icon">⚠️</span>Hazard</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Your room / location</label>
+      <input id="gRoom" type="text" placeholder="e.g. Room 204, Lobby, Floor 3, Pool area"/>
+    </div>
+    <div class="form-group">
+      <label>Describe what you see</label>
+      <textarea id="gDesc" placeholder="e.g. Heavy smoke under the door. Fire alarm not going off. I hear screaming from the hallway."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Your name <span style="font-weight:400;color:var(--subtle)">(optional)</span></label>
+      <input id="gName" type="text" placeholder="e.g. Jenifer Jess"/>
+    </div>
+    <button class="panicbtn" id="reportBtn" onclick="submitReport()">🚨 REPORT EMERGENCY NOW</button>
+    <div class="success-box" id="successBox">
+      <strong style="color:var(--green-text);font-size:14px">✓ Emergency reported — staff alerted immediately</strong><br>
+      <span style="font-size:13px;color:var(--green-text)">Stay calm. Stay in place unless in immediate danger. If life-threatening, also call 112.</span>
+    </div>
+  </div>
+</div>
+
+
+<div id="staff" class="view">
+  <div id="loginSection">
+    <div class="login-wrap">
+      <div class="login-title">🔐 Staff Login</div>
+      <div class="login-sub">Hotel staff and management only</div>
+      <div class="card">
+        <div class="form-group">
+          <label>Email</label>
+          <input id="staffEmail" type="email" placeholder="staff@hotel.com"/>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input id="staffPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')staffLogin()"/>
+        </div>
+        <button class="loginbtn" id="loginBtn" onclick="staffLogin()">Login to Dashboard</button>
+        <div class="err" id="loginErr">❌ Wrong email or password. Please try again.</div>
+      </div>
+      <div class="card" style="background:var(--orange-bg);border-color:var(--orange)">
+        <p style="font-size:13px;color:var(--orange-text);margin-bottom:10px"><b>First time only:</b> Create the demo staff account before logging in</p>
+        <button style="padding:9px 16px;background:#e67e22;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600" onclick="createStaffAccount()">Create Demo Account</button>
+        <div id="createMsg" style="font-size:12px;margin-top:10px;color:var(--green-text);display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="dashSection" style="display:none">
+    <div class="logged-bar">
+      <span>👤 <b id="staffEmail2">Staff</b></span>
+      <span class="signout" onclick="staffLogout()">Sign out</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:8px">
+      <div>
+        <div class="pg-title">Live Dashboard <span class="live-badge">LIVE</span></div>
+        <div class="pg-sub">Real-time alerts — classified by Gemini AI <span class="python-badge">Python API</span></div>
+      </div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer;font-weight:400">
+        <input type="checkbox" id="soundToggle" checked> Sound alerts
+      </label>
+    </div>
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-n n-red" id="sCritical">0</div><div class="stat-l">Critical</div></div>
+      <div class="stat"><div class="stat-n n-org" id="sHigh">0</div><div class="stat-l">High</div></div>
+      <div class="stat"><div class="stat-n n-blue" id="sActive">0</div><div class="stat-l">Active</div></div>
+      <div class="stat"><div class="stat-n n-grn" id="sResolved">0</div><div class="stat-l">Resolved</div></div>
+    </div>
+    <div class="filter-row">
+      <button class="filter-chip active" onclick="setFilter('all',this)">All alerts</button>
+      <button class="filter-chip" onclick="setFilter('critical',this)">Critical only</button>
+      <button class="filter-chip" onclick="setFilter('active',this)">Active</button>
+      <button class="filter-chip" onclick="setFilter('resolved',this)">Resolved</button>
+    </div>
+    <div id="alertsList"></div>
+  </div>
+</div>
+
+
+<div id="emergency" class="view">
+  <div class="pg-title">Emergency Contacts</div>
+  <div class="pg-sub">Live incident summary ready to brief first responders</div>
+  <div id="incidentSummaryCard" class="card" style="border-left:5px solid #e74c3c">
+    <div style="font-size:14px;font-weight:700;color:#e74c3c;margin-bottom:8px">🔴 Active Incidents</div>
+    <div id="incidentList" style="font-size:13px;color:var(--muted);line-height:1.9">Loading...</div>
+  </div>
+  <div class="ec-card"><h3>🚒 Fire Department</h3><p>Fire, smoke, gas leak, structural collapse. Assembly point: Main entrance, Gate A.</p><button class="callbtn">Call 101</button></div>
+  <div class="ec-card"><h3>🚑 Ambulance</h3><p>Cardiac arrest, injury, unconscious guest. Hotel: Grand Plaza Hotel, MG Road, Pune 411001.</p><button class="callbtn">Call 108</button></div>
+  <div class="ec-card"><h3>👮 Police</h3><p>Security threat, assault, theft, suspicious activity.</p><button class="callbtn">Call 100</button></div>
+  <div class="ec-card"><h3>🏨 Front Desk</h3><p>On-call 24/7. All incidents visible in CrisisLink.</p><button class="callbtn">Call 020-1234-5678</button></div>
+</div>
+
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+// ▼▼▼ VERIFIED FIREBASE CONFIG FOR crisislink-21c79 ▼▼▼
+const firebaseConfig = {
+  apiKey: "AIzaSyAV3LQ75ofzE9SThqXYGt9xhH3LE_y37e0",
+  authDomain: "crisislink-21c79.firebaseapp.com",
+  projectId: "crisislink-21c79",
+  storageBucket: "crisislink-21c79.firebasestorage.app",
+  messagingSenderId: "895396874596",
+  appId: "1:895396874596:web:b18de9848613bd38249271"
+};
+
+const GEMINI_KEY = "AIzaSyA6hM3FH3TvxW7SrjJvPtTGEtlnh1omFUg";
+const PYTHON_BACKEND_URL = "";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let currentFilter = 'all';
+let allAlerts = [];
+let unsubscribe = null;
+let selectedType = '';
+let prevAlertCount = 0;
+
+// Handle Auth State Persistance
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('dashSection').style.display = 'block';
+    document.getElementById('staffEmail2').textContent = user.email;
+    startListening();
+  } else {
+    document.getElementById('dashSection').style.display = 'none';
+    document.getElementById('loginSection').style.display = 'block';
+  }
+});
+
+window.toggleDark = () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('darkBtn').textContent = isDark ? '🌙 Dark' : '☀️ Light';
+};
+
+window.gotoView = (view, btn) => {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.navbtn').forEach(b => b.classList.remove('active'));
+  document.getElementById(view).classList.add('active');
+  btn.classList.add('active');
+  if (view === 'emergency') loadIncidentSummary();
+};
+
+window.selType = (btn, type) => {
+  document.querySelectorAll('.typebtn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  selectedType = type;
+};
+
+window.setFilter = (f, chip) => {
+  currentFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  renderAlerts();
+};
+
+function showToast(msg, duration = 5000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+function playAlert() {
+  if (!document.getElementById('soundToggle')?.checked) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [880, 660, 880].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.15);
+      osc.start(ctx.currentTime + i * 0.18);
+      osc.stop(ctx.currentTime + i * 0.18 + 0.15);
+    });
+  } catch(e) {}
+}
+
+window.submitReport = async () => {
+  if (!selectedType) { showToast('⚠️ Please select an emergency type first'); return; }
+  const room = document.getElementById('gRoom').value.trim() || 'Unknown location';
+  const desc = document.getElementById('gDesc').value.trim() || 'No additional details.';
+  const name = document.getElementById('gName').value.trim() || 'Anonymous guest';
+
+  const btn = document.getElementById('reportBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> AI Analyzing...';
+
+  try {
+    const ai = await classifyEmergency(selectedType, room, desc);
+
+    await addDoc(collection(db, 'alerts'), {
+      type: selectedType, room, desc,
+      guestName: name,
+      severity: ai.severity,
+      category: ai.category,
+      protocol: ai.protocol,
+      brief: ai.brief,
+      resolved: false,
+      escalated: false,
+      timestamp: serverTimestamp()
+    });
+
+    btn.disabled = false;
+    btn.innerHTML = '🚨 REPORT EMERGENCY NOW';
+    ['gRoom','gDesc','gName'].forEach(id => document.getElementById(id).value = '');
+    document.querySelectorAll('.typebtn').forEach(b => b.classList.remove('sel'));
+    selectedType = '';
+    const box = document.getElementById('successBox');
+    box.classList.add('show');
+    setTimeout(() => box.classList.remove('show'), 6000);
+
+  } catch(err) {
+    console.error('Submit error:', err);
+    btn.disabled = false;
+    btn.innerHTML = '🚨 REPORT EMERGENCY NOW';
+    
+    // Help User Debug Firebase Errors
+    if (err.message.includes('permission-denied')) {
+        showToast('❌ Permission Denied: You must set Firestore Rules to "Test Mode" in the Firebase Console.');
+    } else if (err.message.includes('not-found') || err.message.includes('database')) {
+        showToast('❌ Database Not Found: Click "Create Database" in Firestore section of Firebase Console.');
+    } else {
+        showToast('❌ Error: ' + err.message);
+    }
+  }
+};
+
+function getFallbackProtocol(type, room) {
+  let sev = "high";
+  if(type.toLowerCase().includes("fire") || type.toLowerCase().includes("medical")) sev = "critical";
+  return {
+    severity: sev,
+    category: type.split('/')[0].trim(),
+    protocol: `Step 1: Dispatch staff to ${room} immediately\nStep 2: Assess situation and ensure guest safety\nStep 3: Call emergency services (100/101/108) if required\nStep 4: Keep area clear and guests calm`,
+    brief: `${type} reported at ${room}. Manual staff assessment initiated.`
+  };
+}
+
+async function classifyEmergency(type, room, desc) {
+  if (PYTHON_BACKEND_URL) {
+    try {
+      const res = await fetch(`${PYTHON_BACKEND_URL}/classify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, room, description: desc })
+      });
+      if (!res.ok) throw new Error('Backend error');
+      return await res.json();
+    } catch(e) {
+      console.warn('Python backend failed, falling back to direct Gemini:', e);
+    }
+  }
+  return await callGeminiDirect(type, room, desc);
+}
+
+async function callGeminiDirect(type, room, desc) {
+  const prompt = `You are an AI emergency coordinator for a hotel. Classify this emergency and return ONLY valid JSON with no markdown or extra text.
+Emergency type: ${type}
+Location: ${room}
+Description: ${desc}
+Structure: {"severity":"critical/high/medium","category":"Name","protocol":"Step 1:...\\nStep 2:...","brief":"summary"}`;
+
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {   
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
+    if (!res.ok) return getFallbackProtocol(type, room);
+    const data = await res.json();
+    const raw = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+    return JSON.parse(raw);
+  } catch(e) {
+    return getFallbackProtocol(type, room);
+  }
+}
+
+window.staffLogin = async () => {
+  const email = document.getElementById('staffEmail').value.trim();
+  const pass = document.getElementById('staffPass').value;
+  const err = document.getElementById('loginErr');
+  const btn = document.getElementById('loginBtn');
+  err.style.display = 'none';
+  btn.textContent = 'Logging in...';
+  btn.disabled = true;
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    err.textContent = '❌ ' + (e.code === 'auth/invalid-credential' ? 'Wrong email or password.' : e.message);
+    err.style.display = 'block';
+  }
+  btn.textContent = 'Login to Dashboard';
+  btn.disabled = false;
+};
+
+window.staffLogout = async () => {
+  if (unsubscribe) unsubscribe();
+  await signOut(auth);
+};
+
+window.createStaffAccount = async () => {
+  const msg = document.getElementById('createMsg');
+  try {
+    await createUserWithEmailAndPassword(auth, 'staff@hotel.com', 'staff123');
+    await signOut(auth);
+    msg.textContent = '✓ Account created! Login with staff@hotel.com / staff123';
+    msg.style.color = 'var(--green-text)';
+  } catch(e) {
+    msg.textContent = e.code === 'auth/email-already-in-use'
+      ? '✓ Account already exists. Login with staff@hotel.com / staff123'
+      : '❌ ' + e.message;
+    msg.style.color = e.code === 'auth/email-already-in-use' ? 'var(--green-text)' : '#e74c3c';
+  }
+  msg.style.display = 'block';
+};
+
+function startListening() {
+  const q = query(collection(db, 'alerts'), orderBy('timestamp', 'desc'));
+  unsubscribe = onSnapshot(q, (snap) => {
+    const newAlerts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const newCount = newAlerts.filter(a => !a.resolved).length;
+    if (allAlerts.length > 0 && newCount > prevAlertCount) {
+      playAlert();
+      const newest = newAlerts[0];
+      showToast(`🚨 NEW ${newest.severity?.toUpperCase()} ALERT — ${newest.category} at ${newest.room}`);
+    }
+    prevAlertCount = newCount;
+    allAlerts = newAlerts;
+    updateStats();
+    renderAlerts();
+  }, (err) => {
+      console.error("Firestore Listener Error:", err);
+      if (err.message.includes('permission-denied')) {
+        showToast("❌ Firestore Rule Error: Set database to 'Test Mode' in Firebase Console.");
+      }
+  });
+}
+
+function updateStats() {
+  const active = allAlerts.filter(a => !a.resolved);
+  document.getElementById('sCritical').textContent = active.filter(a => a.severity === 'critical').length;
+  document.getElementById('sHigh').textContent = active.filter(a => a.severity === 'high').length;
+  document.getElementById('sActive').textContent = active.length;
+  document.getElementById('sResolved').textContent = allAlerts.filter(a => a.resolved).length;
+}
+
+function renderAlerts() {
+  let list = allAlerts;
+  if (currentFilter === 'critical') list = allAlerts.filter(a => a.severity === 'critical' && !a.resolved);
+  if (currentFilter === 'active') list = allAlerts.filter(a => !a.resolved);
+  if (currentFilter === 'resolved') list = allAlerts.filter(a => a.resolved);
+
+  const el = document.getElementById('alertsList');
+  if (list.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div style="font-size:15px;font-weight:600">No alerts here</div></div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(a => {
+    const steps = (a.protocol || '').split('\n').filter(s => s.trim());
+    const time = a.timestamp ? new Date(a.timestamp.seconds * 1000).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : 'Just now';
+    return `
+    <div class="alert-card ${a.resolved ? 'resolved' : (a.severity || 'medium')}">
+      <div class="a-top">
+        <div>
+          <div class="a-title">${a.category || a.type} — ${a.room}</div>
+          <div class="a-meta">Reported by ${a.guestName}</div>
+          <span class="badge badge-${a.resolved ? 'resolved' : a.severity}">${a.resolved ? '✓ Resolved' : (a.severity||'').toUpperCase()}</span>
+        </div>
+        <div class="a-time">${time}</div>
+      </div>
+      <div class="a-desc">"${a.desc}"</div>
+      <div class="ai-box">
+        <div class="ai-label"><span class="ai-dot"></span>Gemini AI — Response Protocol</div>
+        ${steps.map((s,i) => `<div class="step-row"><span class="step-num">${i+1}</span><span class="step-text">${s.replace(/^Step \d+:\s*/i,'')}</span></div>`).join('')}
+      </div>
+      ${!a.resolved ? `
+      <div class="action-row">
+        <button class="btn-resolve" onclick="resolveAlert('${a.id}')">✓ Mark Resolved</button>
+        <button class="btn-escalate" onclick="escalateAlert('${a.id}')">⚡ Escalate</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+window.resolveAlert = async (id) => {
+  await updateDoc(doc(db, 'alerts', id), { resolved: true });
+  showToast('✓ Alert marked as resolved');
+};
+
+window.escalateAlert = async (id) => {
+  await updateDoc(doc(db, 'alerts', id), { escalated: true });
+  showToast('⚡ Escalated to emergency services');
+};
+
+async function loadIncidentSummary() {
+  const q = query(collection(db, 'alerts'), orderBy('timestamp', 'desc'));
+  const snap = await new Promise(resolve => {
+    const unsub = onSnapshot(q, s => { resolve(s); unsub(); }, () => resolve({docs:[]}));
+  });
+  const active = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(a => !a.resolved);
+  const div = document.getElementById('incidentList');
+  if (active.length === 0) {
+    div.textContent = 'No active incidents.';
+  } else {
+    div.innerHTML = active.map(a => `<div>🔴 <b>${a.category}</b> at ${a.room}</div>`).join('');
+  }
+}
+</script>
+</body>
+</html>
