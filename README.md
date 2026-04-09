@@ -31,7 +31,7 @@ CrisisLink fixes this.
 4. Right click index.html → Open with Live Server
 
 # Live Demo
-index.html
+https://github.com/Saee6/CrisisLink-2026/blob/main/index.html
 
 main.py
 
