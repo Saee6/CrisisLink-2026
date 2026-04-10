@@ -30,7 +30,7 @@ CrisisLink fixes this.
 3. Install Live Server extension
 4. Right click index.html → Open with Live Server
 
-# Live Demo
+# GitHub Pages
 https://github.com/Saee6/CrisisLink-2026/blob/main/index.html
 
 https://github.com/Saee6/CrisisLink-2026/blob/main/main.py
@@ -38,7 +38,7 @@ https://github.com/Saee6/CrisisLink-2026/blob/main/main.py
 https://github.com/Saee6/CrisisLink-2026/blob/main/requirement.txt
 
 ## Demo Video
-[paste your Loom link here]
+https://www.loom.com/share/c41793c0e3204df6b24ab4781bfdb258
 
 # Built by
 Saee Kolhe — B.Tech AIML, Pune
