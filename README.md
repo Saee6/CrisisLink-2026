@@ -37,10 +37,7 @@ https://github.com/Saee6/CrisisLink-2026/blob/main/main.py
 
 https://github.com/Saee6/CrisisLink-2026/blob/main/requirement.txt
 
-## Demo Video
-https://www.loom.com/share/c41793c0e3204df6b24ab4781bfdb258
 
 # Built by
 Saee Kolhe — B.Tech AIML, Pune
 
-Vaidehi Singh - B.Tech AIML, Pune
